@@ -99,12 +99,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun addConversationItem(text: String) {
-        val emotion = analyzeEmotion(text)
+        val emotionLabel = analyzeEmotion(text)
+        val emotionEmoji = when (emotionLabel) {
+            "긍정" -> "😃"
+            "부정" -> "😠"
+            else -> "😐"
+        }
+        
         val newItem = ConversationItem(
-            id = System.currentTimeMillis().toString(),
+            id = System.currentTimeMillis(),
+            speaker = "상대방",
             text = text,
-            isUser = false, // Assuming the app listens to "others"
-            emotionLabel = emotion,
+            emotion = emotionEmoji,
+            emotionLabel = emotionLabel,
+            isUser = false,
             timestamp = java.text.SimpleDateFormat("a h:mm", java.util.Locale.KOREA).format(java.util.Date())
         )
         
