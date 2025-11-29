@@ -43,11 +43,48 @@ import com.misterjerry.test01.ui.theme.LightTextPrimary
 import com.misterjerry.test01.ui.theme.SafeColor
 import com.misterjerry.test01.ui.theme.SurfaceColor
 import com.misterjerry.test01.ui.theme.TextSecondary
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import com.misterjerry.test01.ui.theme.WarningColor
 
 @Composable
 fun EnvironmentalSoundScreen(viewModel: MainViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                viewModel.startEnvironmentMode()
+            } else {
+                Toast.makeText(context, "환경 소리 감지를 위해 마이크 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
+
+    DisposableEffect(Unit) {
+        val permissionCheck = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        )
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            viewModel.startEnvironmentMode()
+        } else {
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+        
+        onDispose {
+            viewModel.stopEnvironmentMode()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
