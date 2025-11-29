@@ -1,6 +1,12 @@
 package com.misterjerry.test01.ui
 
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import com.misterjerry.test01.R
+import com.misterjerry.test01.ui.theme.TenadaFontFamily
 import androidx.compose.foundation.background
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,12 +46,45 @@ fun VoiceRecognitionScreen(viewModel: MainViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        ConversationSection(conversationHistory = uiState.conversationHistory)
+        // Header
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp)
+                .background(Color(0x1A0044BA)), // Light Blue
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icons_voice_recognition_mode),
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.Unspecified
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "음성 인식 모드",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontFamily = TenadaFontFamily),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
+
+        // Content
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+        ) {
+            ConversationSection(conversationHistory = uiState.conversationHistory)
+        }
     }
 }
 
@@ -60,29 +99,19 @@ fun ConversationSection(conversationHistory: List<ConversationItem>) {
         }
     }
 
-    Card(
-        colors = CardDefaults.cardColors(containerColor = SurfaceColor),
-        shape = RoundedCornerShape(16.dp),
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxSize() // Take remaining space
+            .fillMaxSize()
+            .background(Color.White) // White background for chat area
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "대화",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextSecondary
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            LazyColumn(
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(conversationHistory) { item ->
-                    ConversationBubble(item)
-                }
+        LazyColumn(
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(conversationHistory) { item ->
+                ConversationBubble(item)
             }
         }
     }
@@ -90,44 +119,93 @@ fun ConversationSection(conversationHistory: List<ConversationItem>) {
 
 @Composable
 fun ConversationBubble(item: ConversationItem) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (item.isUser) Arrangement.End else Arrangement.Start
+    Column(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        if (!item.isUser) {
-            // Emotion Icon
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(Color.DarkGray, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = item.emotion, fontSize = 20.sp)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .background(
-                    if (item.isUser) MaterialTheme.colorScheme.primary else Color.DarkGray,
-                    RoundedCornerShape(12.dp)
-                )
-                .padding(12.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = if (item.isUser) Arrangement.End else Arrangement.Start,
+            verticalAlignment = Alignment.Top
         ) {
-            if (!item.isUser) {
+            // User message doesn't have emotion header in this design, or maybe it does? 
+            // Usually user messages are simple. The request implies "Voice Recognition Mode" which usually analyzes the *other* person's speech.
+            // So I will apply this mainly to non-user messages (the "Stranger").
+
+            Column(
+                horizontalAlignment = if (item.isUser) Alignment.End else Alignment.Start,
+                modifier = Modifier.weight(1f, fill = false) // Allow bubble to not stretch full width if short
+            ) {
+                // Bubble
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = if (item.isUser) Color(0xFFE0E0E0) else Color.White,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = if (item.isUser) Color.Transparent else Color(0xFFE0E0E0),
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(12.dp)
+                ) {
+                    Column {
+                        if (!item.isUser) {
+                            // Emotion Header (Icon + Label)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+                            ) {
+                                val emotionIcon = when (item.emotionLabel) {
+                                    "긍정" -> R.drawable.icon_positive
+                                    "부정" -> R.drawable.icon_negative
+                                    else -> R.drawable.icon_neutrality
+                                }
+                                
+                                Icon(
+                                    painter = painterResource(id = emotionIcon),
+                                    contentDescription = item.emotionLabel,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = Color.Unspecified
+                                )
+                                
+                                // Text is now pushed to the end due to SpaceBetween
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = item.emotionLabel,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Text(
+                            text = item.text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                // Timestamp
                 Text(
-                    text = item.speaker,
+                    text = item.timestamp,
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary
+                    color = Color.Gray,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
-            Text(
-                text = item.text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
-            )
         }
     }
 }
