@@ -245,7 +245,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private suspend fun analyzeEmotionWithGpt(text: String): String {
         return try {
-            val prompt = "다음 텍스트의 감정을 분석해서 '긍정', '부정', '중립', '놀람', '슬픔', '공포', '걱정' 중 하나로만 대답해줘. 텍스트: $text"
+            val prompt = "다음 텍스트의 감정을 분석해서 '긍정', '부정', '중립', '놀람', '슬픔', '공포', '걱정' 중 하나로만 대답해줘. 특히 '괜찮아?'와 같이 상대방을 걱정하는 질문은 '걱정'으로 분류해줘. 텍스트: $text"
             val request = com.misterjerry.test01.data.api.ChatRequest(
                 messages = listOf(
                     com.misterjerry.test01.data.api.Message(role = "user", content = prompt)
@@ -270,7 +270,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             text.contains("놀라") || text.contains("헉") -> "놀람"
             text.contains("슬퍼") || text.contains("우울") -> "슬픔"
             text.contains("무서") || text.contains("공포") -> "공포"
-            text.contains("걱정") || text.contains("불안") || text.contains("근심") -> "걱정"
+            text.contains("걱정") || text.contains("불안") || text.contains("근심") || text.contains("괜찮아") -> "걱정"
             else -> "중립"
         }
     }
