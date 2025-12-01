@@ -199,19 +199,19 @@ fun SoundSettingsDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) {
                 UrgencySettingItem(
-                    title = "위험 알림",
+                    title = "위험 소리",
                     setting = highSetting,
                     onSettingChange = { highSetting = it }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 UrgencySettingItem(
-                    title = "주의 알림",
+                    title = "주의 소리",
                     setting = mediumSetting,
                     onSettingChange = { mediumSetting = it }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 UrgencySettingItem(
-                    title = "일상 알림",
+                    title = "일상 소리",
                     setting = lowSetting,
                     onSettingChange = { lowSetting = it }
                 )
@@ -272,47 +272,54 @@ fun UrgencySettingItem(
         
         if (setting.isEnabled) {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "진동 패턴", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             
             var expanded by remember { mutableStateOf(false) }
             
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
-                    .clickable { expanded = true }
-                    .padding(12.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = setting.vibrationPattern.label,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Dropdown",
-                        tint = Color.Gray
-                    )
-                }
+                Text(text = "진동 패턴", style = MaterialTheme.typography.bodyMedium)
                 
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.background(Color.White)
+                Box(
+                    modifier = Modifier
+                        .width(140.dp)
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
+                        .clickable { expanded = true }
+                        .padding(8.dp)
                 ) {
-                    VibrationPattern.values().forEach { pattern ->
-                        DropdownMenuItem(
-                            text = { Text(text = pattern.label) },
-                            onClick = {
-                                onSettingChange(setting.copy(vibrationPattern = pattern))
-                                expanded = false
-                            }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = setting.vibrationPattern.label,
+                            style = MaterialTheme.typography.bodyMedium
                         )
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Dropdown",
+                            tint = Color.Gray
+                        )
+                    }
+                    
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.background(Color.White)
+                    ) {
+                        VibrationPattern.values().forEach { pattern ->
+                            DropdownMenuItem(
+                                text = { Text(text = pattern.label) },
+                                onClick = {
+                                    onSettingChange(setting.copy(vibrationPattern = pattern))
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
