@@ -168,6 +168,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun addConversationItem(text: String) {
         viewModelScope.launch {
+            // 1. Add item immediately with loading state
+            val tempId = System.currentTimeMillis()
+            val tempItem = ConversationItem(
+                id = tempId,
+                speaker = "상대방",
+                text = text,
+                emotion = "",
+                emotionLabel = "",
+                isUser = false,
+                timestamp = java.text.SimpleDateFormat("a h:mm", java.util.Locale.KOREA).format(java.util.Date()),
+                isLoading = true
+            )
+            
+            _conversationHistory.value = _conversationHistory.value + tempItem
+
+            // 2. Analyze emotion
             val emotionLabel = analyzeEmotionWithGpt(text)
             val emotionEmoji = when (emotionLabel) {
                 "긍정" -> "😃"
@@ -175,18 +191,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 else -> "😐"
             }
 
-            val newItem = ConversationItem(
-                id = System.currentTimeMillis(),
-                speaker = "상대방",
-                text = text,
-                emotion = emotionEmoji,
-                emotionLabel = emotionLabel,
-                isUser = false,
-                timestamp = java.text.SimpleDateFormat("a h:mm", java.util.Locale.KOREA).format(java.util.Date())
-            )
-
-            val currentHistory = _conversationHistory.value
-            _conversationHistory.value = currentHistory + newItem
+            // 3. Update item with result
+            val updatedList = _conversationHistory.value.map { item ->
+                if (item.id == tempId) {
+                    item.copy(
+                        emotion = emotionEmoji,
+                        emotionLabel = emotionLabel,
+                        isLoading = false
+                    )
+                } else {
+                    item
+                }
+            }
+            _conversationHistory.value = updatedList
         }
     }
 

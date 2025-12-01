@@ -208,46 +208,74 @@ fun ConversationBubble(item: ConversationItem) {
                     Column {
                         if (!item.isUser) {
                             // Emotion Header (Icon + Label)
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp)
-                            ) {
-                                val emotionIcon = when (item.emotionLabel) {
-                                    "긍정" -> R.drawable.icon_positive
-                                    "부정" -> R.drawable.icon_negative
-                                    else -> R.drawable.icon_neutrality
-                                }
-                                
-                                Icon(
-                                    painter = painterResource(id = emotionIcon),
-                                    contentDescription = item.emotionLabel,
-                                    modifier = Modifier.size(24.dp),
-                                    tint = Color.Unspecified
-                                )
-                                
-                                // Text is now pushed to the end due to SpaceBetween
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = "gpt반응 : ${item.emotionLabel}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.Gray,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                    
+                            if (item.isLoading) {
+                                // Skeleton UI
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                ) {
+                                    // Skeleton Icon
                                     Box(
                                         modifier = Modifier
-                                            .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-                                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                                    ) {
-                                        Text(
-                                            text = item.emotionLabel,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Black
+                                            .size(24.dp)
+                                            .background(Color.LightGray, CircleShape)
+                                    )
+                                    
+                                    // Skeleton Text
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(80.dp)
+                                                .height(16.dp)
+                                                .background(Color.LightGray, RoundedCornerShape(4.dp))
                                         )
+                                    }
+                                }
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                ) {
+                                    val emotionIcon = when (item.emotionLabel) {
+                                        "긍정" -> R.drawable.icon_positive
+                                        "부정" -> R.drawable.icon_negative
+                                        else -> R.drawable.icon_neutrality
+                                    }
+                                    
+                                    Icon(
+                                        painter = painterResource(id = emotionIcon),
+                                        contentDescription = item.emotionLabel,
+                                        modifier = Modifier.size(24.dp),
+                                        tint = Color.Unspecified
+                                    )
+                                    
+                                    // Text is now pushed to the end due to SpaceBetween
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "gpt반응 : ${item.emotionLabel}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(end = 8.dp)
+                                        )
+                                        
+                                        Box(
+                                            modifier = Modifier
+                                                .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                        ) {
+                                            Text(
+                                                text = item.emotionLabel,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Black
+                                            )
+                                        }
                                     }
                                 }
                             }
