@@ -13,6 +13,7 @@ import com.misterjerry.test01.data.ConversationItem
 import com.misterjerry.test01.data.SoundEvent
 import com.misterjerry.test01.data.SoundRepository
 import com.misterjerry.test01.data.Urgency
+import com.misterjerry.test01.util.VibrationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +38,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val speechRecognizer: SpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(application)
     private val audioClassifierHelper = AudioClassifierHelper(application)
+    private val vibrationHelper = VibrationHelper(application)
 
     init {
         // ... (SpeechRecognizer init code remains same) ...
@@ -79,6 +81,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             distance = (1..10).random().toFloat(), // Random distance for demo
             urgency = urgency
         )
+
+        vibrationHelper.vibrate(urgency)
 
         // Update sound events list (keep last 5)
         val currentEvents = uiState.value.soundEvents
