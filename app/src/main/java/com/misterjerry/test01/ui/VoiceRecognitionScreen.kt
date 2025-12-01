@@ -229,17 +229,26 @@ fun ConversationBubble(item: ConversationItem) {
                                 )
                                 
                                 // Text is now pushed to the end due to SpaceBetween
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = item.emotionLabel,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black
+                                        text = "gpt반응 : ${item.emotionLabel}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(end = 8.dp)
                                     )
+                                    
+                                    Box(
+                                        modifier = Modifier
+                                            .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = item.emotionLabel,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.Black
+                                        )
+                                    }
                                 }
                             }
                         }

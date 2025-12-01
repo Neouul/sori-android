@@ -167,32 +167,48 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun addConversationItem(text: String) {
-        val emotionLabel = analyzeEmotion(text)
-        val emotionEmoji = when (emotionLabel) {
-            "긍정" -> "😃"
-            "부정" -> "😠"
-            else -> "😐"
+        viewModelScope.launch {
+            val emotionLabel = analyzeEmotionWithGpt(text)
+            val emotionEmoji = when (emotionLabel) {
+                "긍정" -> "😃"
+                "부정" -> "😠"
+                else -> "😐"
+            }
+
+            val newItem = ConversationItem(
+                id = System.currentTimeMillis(),
+                speaker = "상대방",
+                text = text,
+                emotion = emotionEmoji,
+                emotionLabel = emotionLabel,
+                isUser = false,
+                timestamp = java.text.SimpleDateFormat("a h:mm", java.util.Locale.KOREA).format(java.util.Date())
+            )
+
+            val currentHistory = _conversationHistory.value
+            _conversationHistory.value = currentHistory + newItem
         }
-        
-        val newItem = ConversationItem(
-            id = System.currentTimeMillis(),
-            speaker = "상대방",
-            text = text,
-            emotion = emotionEmoji,
-            emotionLabel = emotionLabel,
-            isUser = false,
-            timestamp = java.text.SimpleDateFormat("a h:mm", java.util.Locale.KOREA).format(java.util.Date())
-        )
-        
-        val currentHistory = _conversationHistory.value
-        _conversationHistory.value = currentHistory + newItem
     }
 
-    private fun analyzeEmotion(text: String): String {
-        return when {
-            text.contains("화나") || text.contains("짜증") -> "부정"
-            text.contains("행복") || text.contains("좋아") || text.contains("사랑") -> "긍정"
-            else -> "중립"
+    private suspend fun analyzeEmotionWithGpt(text: String): String {
+        return try {
+            val prompt = "다음 텍스트의 감정을 분석해서 '긍정', '부정', '중립' 중 하나로만 대답해줘. 텍스트: $text"
+            val request = com.misterjerry.test01.data.api.ChatRequest(
+                messages = listOf(
+                    com.misterjerry.test01.data.api.Message(role = "user", content = prompt)
+                )
+            )
+            val response = com.misterjerry.test01.data.api.RetrofitClient.instance.getChatCompletion(request)
+            val content = response.choices.firstOrNull()?.message?.content?.trim() ?: "중립"
+            
+            // Validate response just in case
+            if (content in listOf("긍정", "부정", "중립")) content else "중립"
+        } catch (e: retrofit2.HttpException) {
+            e.printStackTrace()
+            "에러: ${e.code()}"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "에러: ${e.message}"
         }
     }
 
