@@ -32,8 +32,7 @@ fun RadarView(
     soundEvents: List<SoundEvent>,
     modifier: Modifier = Modifier
 ) {
-    val primaryColor = MaterialTheme.colorScheme.primary
-
+    val primaryColor = Color(0x991E1E1E)
     // Animation for the scanning wave
     val infiniteTransition = rememberInfiniteTransition(label = "RadarWave")
     val waveRadiusRatio by infiniteTransition.animateFloat(
