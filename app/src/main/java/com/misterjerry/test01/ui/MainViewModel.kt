@@ -84,9 +84,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         vibrationHelper.vibrate(urgency)
 
-        // Update sound events list (keep last 5)
+        // Update sound events list (keep events within last 1 hour)
         val currentEvents = uiState.value.soundEvents
-        val updatedEvents = (listOf(newEvent) + currentEvents).take(5)
+        val oneHourAgo = System.currentTimeMillis() - 3600000 // 1 hour in millis
+        val updatedEvents = (listOf(newEvent) + currentEvents).filter { it.id > oneHourAgo }
         
         // We need to update the state. Since uiState is a combine of flows, we need a way to emit this.
         // The current architecture uses SoundRepository. Let's modify SoundRepository or just use a MutableStateFlow for sounds in VM.

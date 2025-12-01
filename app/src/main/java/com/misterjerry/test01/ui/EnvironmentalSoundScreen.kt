@@ -221,11 +221,34 @@ fun SoundEventItem(event: SoundEvent) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = "${"%.1f".format(event.distance)}m 거리",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${"%.1f".format(event.distance)}m 거리",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+                Text(
+                    text = formatTimeAgo(event.id),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+            }
         }
+    }
+}
+
+fun formatTimeAgo(timestamp: Long): String {
+    val diff = System.currentTimeMillis() - timestamp
+    val seconds = diff / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+
+    return when {
+        seconds < 60 -> "방금 전"
+        minutes < 60 -> "${minutes}분 전"
+        else -> "${hours}시간 전"
     }
 }
