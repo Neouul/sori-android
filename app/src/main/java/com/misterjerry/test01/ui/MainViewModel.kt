@@ -82,9 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             urgency = urgency
         )
 
-        if (urgency == Urgency.HIGH) {
-            vibrationHelper.vibrateWarning()
-        }
+        vibrationHelper.vibrate(urgency)
 
         // Update sound events list (keep last 5)
         val currentEvents = uiState.value.soundEvents
