@@ -45,8 +45,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         
         // Listen to audio classification results
         viewModelScope.launch {
-            audioClassifierHelper.classificationFlow.collect { label ->
-                handleSoundClassification(label)
+            audioClassifierHelper.classificationFlow.collect { (label, direction) ->
+                handleSoundClassification(label, direction)
             }
         }
     }
@@ -61,7 +61,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         audioClassifierHelper.stopAudioClassification()
     }
 
-    private fun handleSoundClassification(label: String) {
+    private fun handleSoundClassification(label: String, direction: Float) {
         val (koreanLabel, urgency) = when (label) {
             "Clapping", "Hands" -> "박수 소리" to Urgency.LOW
             "Knock" -> "노크 소리" to Urgency.LOW
@@ -77,7 +77,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val newEvent = SoundEvent(
             id = System.currentTimeMillis(),
             name = koreanLabel,
-            direction = (0..360).random().toFloat(), // Random direction for demo as we can't detect it with single mic
+            direction = direction,
             distance = (1..10).random().toFloat(), // Random distance for demo
             urgency = urgency
         )
